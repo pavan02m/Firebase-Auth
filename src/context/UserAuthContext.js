@@ -8,15 +8,30 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "../firebase";
 
 const userAuthContext = createContext();
 
 export function UserAuthContextProvider({ children }) {
   const [user, setUser] = useState({});
+  const [roleId, setRoleId] = useState(undefined);
 
-  function logIn(email, password) {
+  async function logIn(email, password){
+    let userRole = "";
+    if (email && password) {
+      const q = query(collection(db, "user"), where("email", "==", email));
+      const snapShot = await getDocs(q);
+      snapShot.forEach((doc) => {
+        if(doc.data().role){
+          userRole = doc.data().role;
+        }
+      });
+    }
+    setRoleId(userRole);
+    console.log(roleId);
     return signInWithEmailAndPassword(auth, email, password);
-  }
+  };
   function signUp(email, password) {
     return createUserWithEmailAndPassword(auth, email, password);
   }
@@ -30,7 +45,7 @@ export function UserAuthContextProvider({ children }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentuser) => {
-      console.log("Auth", currentuser);
+      // console.log("Auth", currentuser);
       setUser(currentuser);
     });
 
@@ -41,7 +56,7 @@ export function UserAuthContextProvider({ children }) {
 
   return (
     <userAuthContext.Provider
-      value={{ user, logIn, signUp, logOut, googleSignIn }}
+      value={{ user, logIn, signUp, logOut, googleSignIn, roleId }}
     >
       {children}
     </userAuthContext.Provider>

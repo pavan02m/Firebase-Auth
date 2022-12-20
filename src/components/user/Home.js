@@ -1,10 +1,10 @@
 import React from "react";
+import "./home.css";
 import { Button } from "react-bootstrap";
 import { useNavigate } from "react-router";
-import { useUserAuth } from "../context/UserAuthContext";
-
+import { useUserAuth } from "../../context/UserAuthContext";
 const Home = () => {
-  const { logOut, user } = useUserAuth();
+  const { logOut, user, roleId } = useUserAuth();
   const navigate = useNavigate();
   const handleLogout = async () => {
     try {
@@ -16,15 +16,12 @@ const Home = () => {
   };
   return (
     <>
-      <div className="p-4 box mt-3 text-center">
-        Hello Welcome <br />
-        {user && user.email}
-      </div>
-      <div className="d-grid gap-2">
-        <Button variant="primary" onClick={handleLogout}>
-          Log out
-        </Button>
-      </div>
+      {user && user.email}
+      <br />
+      {roleId}
+      <Button variant="primary" onClick={handleLogout}>
+        Log out
+      </Button>
     </>
   );
 };
